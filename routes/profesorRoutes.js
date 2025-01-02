@@ -111,12 +111,18 @@ router.get("/profesor", async (req, res, next) => {
  */
 router.post("/profesor/create", async (req, res, next) => {
   try {
-    const { nombre, sexo, edad, asignatura } = req.body;
+    const { nombre, sexo, edad, asignatura, facultadId } = req.body;
 
-    if (!nombre || !sexo) {
+    if (!nombre || !sexo || !edad || !asignatura) {
       throw new AppError("el id es requerido", 400);
     }
-    const profesor = await createProfesor(nombre, sexo, edad, asignatura);
+    const profesor = await createProfesor(
+      nombre,
+      sexo,
+      edad,
+      asignatura,
+      facultadId
+    );
     res.status(200).json(profesor);
   } catch (error) {
     next(error);
@@ -156,16 +162,23 @@ router.post("/profesor/create", async (req, res, next) => {
  */
 router.put("/profesor/update/:id", async (req, res, next) => {
   try {
-    const { nombre, sexo } = req.body;
+    const { nombre, sexo, edad, asignatura, facultadId } = req.body;
     const { id } = req.params;
 
     if (!id) {
       throw new AppError("el id es requerido", 400);
     }
-    if (!nombre || !sexo) {
+    if (!nombre || !sexo || !edad || !asignatura) {
       throw new AppError("todos los campos son requeridos", 400);
     }
-    const profesor = await updateProfesor(id, nombre, sexo);
+    const profesor = await updateProfesor(
+      id,
+      nombre,
+      sexo,
+      edad,
+      asignatura,
+      facultadId
+    );
 
     if (profesor == 0) {
       throw new AppError("profesor no encontrado", 404);

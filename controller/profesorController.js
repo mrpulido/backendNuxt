@@ -21,9 +21,16 @@ const getProfesor = async () => {
   return profesores;
 };
 
-const updateProfesor = async (id, nombre, sexo, edad, asignatura) => {
+const updateProfesor = async (
+  id,
+  nombre,
+  sexo,
+  edad,
+  asignatura,
+  facultadId
+) => {
   const profesor = await Profesor.update(
-    { nombre, sexo, edad, asignatura },
+    { nombre, sexo, edad, asignatura, facultadId },
     { where: { id } }
   );
   return profesor;
