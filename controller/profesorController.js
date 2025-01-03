@@ -1,4 +1,5 @@
 const Profesor = require("../models/profesor");
+const Facultad = require("../models/facultad");
 
 const createProfesor = async (nombre, sexo, edad, asignatura, facultadId) => {
   const profesor = await Profesor.create({
@@ -12,7 +13,9 @@ const createProfesor = async (nombre, sexo, edad, asignatura, facultadId) => {
 };
 
 const getProfesorById = async (id) => {
-  const profesor = await Profesor.findByPk(id);
+  const profesor = await Profesor.findByPk(id, {
+    include: [{ model: Facultad, as: "facultad" }],
+  });
   return profesor;
 };
 

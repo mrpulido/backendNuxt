@@ -72,6 +72,10 @@ const Profesor = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    facultadId: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
   },
   {
     timestamps: true,
