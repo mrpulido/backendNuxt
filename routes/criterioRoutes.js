@@ -51,7 +51,6 @@ router.get("/criterios/:id", async (req, res, next) => {
     }
     res.status(200).json(criterio);
   } catch (error) {
-    logger.error(error);
     next(error);
   }
 });
@@ -169,7 +168,7 @@ router.post("/criterios/create", async (req, res, next) => {
  */
 router.put("/criterios/update/:id", async (req, res, next) => {
   try {
-    const { nombre } = req.body;
+    const { nombre, encuestaId } = req.body;
     const { id } = req.params;
 
     if (!id) {
@@ -178,7 +177,7 @@ router.put("/criterios/update/:id", async (req, res, next) => {
     if (!nombre) {
       throw new AppError("todos los campos son requeridos", 400);
     }
-    const criterio = await updateCriterios(id, nombre);
+    const criterio = await updateCriterios(id, nombre, encuestaId);
 
     if (criterio == 0) {
       throw new AppError("usuario no encontrado", 404);

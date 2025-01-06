@@ -35,26 +35,34 @@ const Encuesta = require("./encuesta");
  *         - encuestaId
  */
 
-const Criterio = sequelize.define("criterio", {
+const Criterio = sequelize.define(
+  "criterio",
+  {
     nombre: {
-    type: DataTypes.STRING,
-    allowNull: false,
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    encuestaId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
   },
-}, {
-  timestamps: true,
-  paranoid: true,
-});
+  {
+    timestamps: true,
+    paranoid: true,
+  }
+);
 
 // Relación uno a muchos con Encuesta
 Encuesta.hasMany(Criterio, {
-  foreignKey: 'encuestaId',
-  onDelete: 'CASCADE',
-  onUpdate: 'CASCADE'
+  foreignKey: "encuestaId",
+  onDelete: "SET NULL",
+  onUpdate: "CASCADE",
 });
 Criterio.belongsTo(Encuesta, {
-  foreignKey: 'encuestaId',
-  onDelete: 'CASCADE',
-  onUpdate: 'CASCADE'
+  foreignKey: "encuestaId",
+  onDelete: "SET NULL",
+  onUpdate: "CASCADE",
 });
 
 module.exports = Criterio;

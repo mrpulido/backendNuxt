@@ -30,6 +30,9 @@ const Facultad = require("./facultad");
  *         asignatura:
  *           type: string
  *           description: Asignatura que imparte el profesor
+ *         imagen:
+ *           type: string
+ *           description: Imagen del profesor
  *         facultadId:
  *           type: integer
  *           description: ID de la facultad a la que pertenece el profesor
@@ -72,9 +75,13 @@ const Profesor = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    facultadId: {
+    imagen: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
+    },
+    facultadId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
     },
   },
   {
@@ -86,12 +93,12 @@ const Profesor = sequelize.define(
 // Relación uno a muchos con facultad
 Facultad.hasMany(Profesor, {
   foreignKey: "facultadId",
-  onDelete: "CASCADE",
+  onDelete: "SET NULL",
   onUpdate: "CASCADE",
 });
 Profesor.belongsTo(Facultad, {
   foreignKey: "facultadId",
-  onDelete: "CASCADE",
+  onDelete: "SET NULL",
   onUpdate: "CASCADE",
 });
 

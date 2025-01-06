@@ -1,4 +1,5 @@
 const Criterio = require("../models/criterio");
+const Encuesta = require("../models/encuesta");
 
 const createCriterio = async (nombre, encuestaId) => {
   const criterio = await Criterio.create({ nombre, encuestaId });
@@ -6,7 +7,12 @@ const createCriterio = async (nombre, encuestaId) => {
 };
 
 const getCriterioById = async (id) => {
-  const criterio = await Criterio.findByPk(id);
+  const criterio = await Criterio.findByPk(id, {
+    include: {
+      model: Encuesta,
+      attributes: ["nombre"],
+    },
+  });
   return criterio;
 };
 

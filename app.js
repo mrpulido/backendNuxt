@@ -3,6 +3,7 @@ require("dotenv").config();
 const sequelize = require("./helpers/database.js");
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 
 const swaggerUi = require("swagger-ui-express");
 const swaggerJsdoc = require("swagger-jsdoc");
@@ -93,3 +94,6 @@ sequelize
   .catch((err) => {
     console.log("Ha ocurrido un error al sincronizar los modelos: ", err);
   });
+
+// Servir archivos estáticos desde la carpeta 'uploads'
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));

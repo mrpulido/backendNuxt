@@ -9,6 +9,7 @@ const {
   updateProfesor,
 } = require("../controller/profesorController");
 const AppError = require("../errors/AppErrors");
+const upload = require("../middlewares/multerconfig");
 
 /**
  * @swagger
@@ -109,25 +110,31 @@ router.get("/profesor", async (req, res, next) => {
  *       500:
  *         description: Error del servidor
  */
-router.post("/profesor/create", async (req, res, next) => {
-  try {
-    const { nombre, sexo, edad, asignatura, facultadId } = req.body;
+router.post(
+  "/profesor/create",
+  upload.single("imagen"),
+  async (req, res, next) => {
+    try {
+      const { nombre, sexo, edad, asignatura, facultadId } = req.body;
+      const imagen = req.file ? req.file.filename : null;
 
-    if (!nombre || !sexo || !edad || !asignatura) {
-      throw new AppError("el id es requerido", 400);
+      if (!nombre || !sexo || !edad || !asignatura) {
+        throw new AppError("todos los campos son requeridos", 400);
+      }
+      const profesor = await createProfesor(
+        nombre,
+        sexo,
+        edad,
+        asignatura,
+        facultadId,
+        imagen
+      );
+      res.status(200).json(profesor);
+    } catch (error) {
+      next(error);
     }
-    const profesor = await createProfesor(
-      nombre,
-      sexo,
-      edad,
-      asignatura,
-      facultadId
-    );
-    res.status(200).json(profesor);
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 /**
  * @swagger
@@ -160,34 +167,38 @@ router.post("/profesor/create", async (req, res, next) => {
  *       500:
  *         description: Error del servidor
  */
-router.put("/profesor/update/:id", async (req, res, next) => {
-  try {
-    const { nombre, sexo, edad, asignatura, facultadId } = req.body;
-    const { id } = req.params;
+router.put(
+  "/profesor/update/:id",
+  upload.single("imagen"),
+  async (req, res, next) => {
+    try {
+      const { nombre, sexo, edad, asignatura, facultadId } = req.body;
+      const { id } = req.params;
+      const imagen = req.file ? req.file.filename : null;
 
-    if (!id) {
-      throw new AppError("el id es requerido", 400);
-    }
-    if (!nombre || !sexo || !edad || !asignatura) {
-      throw new AppError("todos los campos son requeridos", 400);
-    }
-    const profesor = await updateProfesor(
-      id,
-      nombre,
-      sexo,
-      edad,
-      asignatura,
-      facultadId
-    );
+      if (!nombre || !sexo || !edad || !asignatura || !facultadId) {
+        throw new AppError("todos los campos son requeridos", 400);
+      }
 
-    if (profesor == 0) {
-      throw new AppError("profesor no encontrado", 404);
+      const profesor = await updateProfesor(
+        id,
+        nombre,
+        sexo,
+        edad,
+        asignatura,
+        facultadId,
+        imagen
+      );
+
+      if (profesor == 0) {
+        throw new AppError("profesor no encontrado", 404);
+      }
+      res.status(200).json({ message: "profesor editado exitosamente" });
+    } catch (error) {
+      next(error);
     }
-    res.status(200).json({ message: "profesor editado exsitosamente" });
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 /**
  * @swagger

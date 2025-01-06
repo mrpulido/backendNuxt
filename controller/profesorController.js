@@ -1,13 +1,24 @@
 const Profesor = require("../models/profesor");
 const Facultad = require("../models/facultad");
+const path = require("path");
 
-const createProfesor = async (nombre, sexo, edad, asignatura, facultadId) => {
+const createProfesor = async (
+  nombre,
+  sexo,
+  edad,
+  asignatura,
+  facultadId,
+  imagen
+) => {
+  const imagenPath = imagen ? path.join("uploads", imagen) : null;
+
   const profesor = await Profesor.create({
     nombre,
     sexo,
     edad,
     asignatura,
     facultadId,
+    imagen: imagenPath,
   });
   return profesor;
 };
@@ -30,13 +41,24 @@ const updateProfesor = async (
   sexo,
   edad,
   asignatura,
-  facultadId
+  facultadId,
+  imagen
 ) => {
-  const profesor = await Profesor.update(
-    { nombre, sexo, edad, asignatura, facultadId },
-    { where: { id } }
-  );
-  return profesor;
+  const updateData = {
+    nombre,
+    sexo,
+    edad,
+    asignatura,
+    facultadId,
+  };
+
+  if (imagen) {
+    updateData.imagen = path.join("uploads", imagen);
+  }
+
+  const [updated] = await Profesor.update(updateData, { where: { id } });
+
+  return updated;
 };
 
 const deleteProfesor = async (id) => {

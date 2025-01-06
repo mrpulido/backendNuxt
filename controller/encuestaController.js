@@ -3,7 +3,7 @@ const Encuesta = require("../models/encuesta");
 
 const createEncuesta = async (nombre, usuarioId, profesores) => {
   const encuesta = await Encuesta.create({ nombre, usuarioId });
-  await encuesta.setProfesors(profesores);
+  //await encuesta.setProfesors(profesores);
   return encuesta;
 };
 
@@ -23,7 +23,7 @@ const updateEncuesta = async (id, nombre, profesores) => {
   const encuesta = await Encuesta.findByPk(id);
 
   await encuesta.update({ nombre });
-  await encuesta.setProfesors(profesores);
+  //await encuesta.setProfesors(profesores);
   return encuesta;
 };
 

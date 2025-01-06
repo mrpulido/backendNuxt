@@ -127,8 +127,8 @@ router.get("/encuesta", async (req, res, next) => {
 router.post("/encuesta/create", async (req, res, next) => {
   try {
     const { nombre, profesores, usuarioId } = req.body;
-
-    if (!nombre || !profesores || !usuarioId) {
+    console.log(req.body);
+    if (!nombre || !usuarioId) {
       throw new AppError("Todos los campos son requeridos", 400);
     }
     const encuesta = await createEncuesta(nombre, usuarioId, profesores);
@@ -192,7 +192,7 @@ router.put("/encuesta/update/:id", async (req, res, next) => {
     if (!id) {
       throw new AppError("el id es requerido", 400);
     }
-    if (!nombre || !profesores) {
+    if (!nombre) {
       throw new AppError("todos los campos son requeridos", 400);
     }
     const encuesta = await updateEncuesta(id, nombre, profesores);

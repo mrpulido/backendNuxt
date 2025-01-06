@@ -50,6 +50,10 @@ const Encuesta = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    usuarioId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
   },
   {
     timestamps: true,
