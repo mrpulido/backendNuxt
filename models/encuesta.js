@@ -17,6 +17,11 @@
  *         usuarioId:
  *           type: integer
  *           description: ID del usuario que creó la encuesta
+ *         profesores:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/Profesor'
+ *           description: Lista de profesores asignados a la encuesta
  *         createdAt:
  *           type: string
  *           format: date-time
@@ -33,6 +38,7 @@
  *         id: 1
  *         nombre: "Encuesta de satisfacción"
  *         usuarioId: 1
+ *         profesores: [{ "id": 1, "nombre": "Juan Pérez" }, { "id": 2, "nombre": "Ana Gómez" }]
  *         createdAt: "2024-03-20T15:30:00.000Z"
  *         updatedAt: "2024-03-20T15:30:00.000Z"
  *         deletedAt: null
@@ -73,7 +79,7 @@ Encuesta.belongsTo(Usuario, {
   onUpdate: "CASCADE",
 });
 
-// Relación muchos a muchos con Encuesta
+// Relación muchos a muchos con Profesor
 Encuesta.belongsToMany(Profesor, {
   through: "ProfesorEncuesta",
   onDelete: "CASCADE",

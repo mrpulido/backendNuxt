@@ -11,7 +11,6 @@ const swaggerJsdoc = require("swagger-jsdoc");
 // Importaciones de los modelos
 const Criterio = require("./models/criterio");
 const Encuesta = require("./models/encuesta");
-const Evaluacion = require("./models/evaluacion");
 const Facultad = require("./models/facultad");
 const Profesor = require("./models/profesor");
 const Usuario = require("./models/usuario");
@@ -20,7 +19,6 @@ const Usuario = require("./models/usuario");
 const usuarioRoutes = require("./routes/usuarioRoutes.js");
 const encuestaRoutes = require("./routes/encuestaRoutes.js");
 const facultadRoutes = require("./routes/facultadRoutes.js");
-const evaluacionRoutes = require("./routes/evaluacionRoutes.js");
 const profesorRoutes = require("./routes/profesorRoutes.js");
 const criterioRoutes = require("./routes/criterioRoutes.js");
 
@@ -69,7 +67,6 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use("/", usuarioRoutes);
 app.use("/", criterioRoutes);
-app.use("/", evaluacionRoutes);
 app.use("/", profesorRoutes);
 app.use("/", facultadRoutes);
 app.use("/", encuestaRoutes);

@@ -127,14 +127,12 @@ router.get("/encuesta", async (req, res, next) => {
 router.post("/encuesta/create", async (req, res, next) => {
   try {
     const { nombre, profesores, usuarioId } = req.body;
-    console.log(req.body);
     if (!nombre || !usuarioId) {
       throw new AppError("Todos los campos son requeridos", 400);
     }
     const encuesta = await createEncuesta(nombre, usuarioId, profesores);
     res.status(200).json(encuesta);
   } catch (error) {
-    console.log(error);
     next(error);
   }
 });
@@ -200,7 +198,7 @@ router.put("/encuesta/update/:id", async (req, res, next) => {
     if (encuesta == 0) {
       throw new AppError("encuesta no encontrada", 404);
     }
-    res.status(200).json({ message: "encuesta editada exsitosamente" });
+    res.status(200).json({ message: "encuesta editada exitosamente" });
   } catch (error) {
     next(error);
   }

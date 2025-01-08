@@ -17,7 +17,7 @@ const getCriterioById = async (id) => {
 };
 
 const getCriterios = async () => {
-  const criterios = await Criterio.findAll();
+  const criterios = await Criterio.findAll({ include: [Encuesta] });
   return criterios;
 };
 
