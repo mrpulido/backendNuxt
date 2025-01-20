@@ -50,25 +50,34 @@ const sequelize = require("../helpers/database");
  *           example: null
  */
 
-const Usuario = sequelize.define("usuario", {
+const Usuario = sequelize.define(
+  "usuario",
+  {
     nombre_usuario: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     contrasena: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     rol: {
-    type: DataTypes.STRING,
-    allowNull: false,
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    twoFactorSecret: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    twoFactorEnabled: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
   },
-}, {
-  timestamps: true,
-  paranoid: true,
-});
-
+  {
+    timestamps: true,
+    paranoid: true,
+  }
+);
 
 module.exports = Usuario;
-
-  

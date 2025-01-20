@@ -9,6 +9,7 @@ const {
   updateUsuario,
 } = require("../controller/usuarioController");
 const AppError = require("../errors/AppErrors");
+const authenticate = require("../middlewares/authenticate");
 
 /**
  * @swagger
@@ -42,22 +43,26 @@ const AppError = require("../errors/AppErrors");
  *       500:
  *         description: Error del servidor
  */
-router.get("/usuarios/:id", async (req, res, next) => {
-  const { id } = req.params;
-  if (!id) {
-    throw new AppError("el id es requerido", 400);
-  }
-  try {
-    const usuario = await getUsuarioById(id);
-
-    if (!usuario) {
-      throw new AppError("usuario no encontrado", 404);
+router.get(
+  "/usuarios/:id",
+  authenticate(["administrador"]),
+  async (req, res, next) => {
+    const { id } = req.params;
+    if (!id) {
+      throw new AppError("el id es requerido", 400);
     }
-    res.status(200).json(usuario);
-  } catch (error) {
-    next(error);
+    try {
+      const usuario = await getUsuarioById(id);
+
+      if (!usuario) {
+        throw new AppError("usuario no encontrado", 404);
+      }
+      res.status(200).json(usuario);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 /**
  * @swagger
@@ -84,14 +89,18 @@ router.get("/usuarios/:id", async (req, res, next) => {
  *       500:
  *         description: Error del servidor
  */
-router.get("/usuarios", async (req, res, next) => {
-  try {
-    const usuarios = await getUsuarios();
-    res.status(200).json(usuarios);
-  } catch (error) {
-    next(error);
+router.get(
+  "/usuarios",
+  authenticate(["administrador"]),
+  async (req, res, next) => {
+    try {
+      const usuarios = await getUsuarios();
+      res.status(200).json(usuarios);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 /**
  * @swagger
@@ -124,19 +133,23 @@ router.get("/usuarios", async (req, res, next) => {
  *       500:
  *         description: Error del servidor
  */
-router.post("/usuarios/create", async (req, res, next) => {
-  try {
-    const { nombre_usuario, contrasena, rol } = req.body;
+router.post(
+  "/usuarios/create",
+  authenticate(["administrador"]),
+  async (req, res, next) => {
+    try {
+      const { nombre_usuario, contrasena, rol } = req.body;
 
-    if (!nombre_usuario || !contrasena || !rol) {
-      throw new AppError("el id es requerido", 400);
+      if (!nombre_usuario || !contrasena || !rol) {
+        throw new AppError("el id es requerido", 400);
+      }
+      const usuario = await createUsuario(nombre_usuario, contrasena, rol);
+      res.status(200).json(usuario);
+    } catch (error) {
+      next(error);
     }
-    const usuario = await createUsuario(nombre_usuario, contrasena, rol);
-    res.status(200).json(usuario);
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 /**
  * @swagger
@@ -178,27 +191,31 @@ router.post("/usuarios/create", async (req, res, next) => {
  *       500:
  *         description: Error del servidor
  */
-router.put("/usuarios/update/:id", async (req, res, next) => {
-  try {
-    const { nombre_usuario, contrasena, rol } = req.body;
-    const { id } = req.params;
+router.put(
+  "/usuarios/update/:id",
+  authenticate(["administrador"]),
+  async (req, res, next) => {
+    try {
+      const { nombre_usuario, contrasena, rol } = req.body;
+      const { id } = req.params;
 
-    if (!id) {
-      throw new AppError("el id es requerido", 400);
-    }
-    if (!nombre_usuario || !contrasena || !rol) {
-      throw new AppError("todos los campos son requeridos", 400);
-    }
-    const usuario = await updateUsuario(id, nombre_usuario, contrasena, rol);
+      if (!id) {
+        throw new AppError("el id es requerido", 400);
+      }
+      if (!nombre_usuario || !rol) {
+        throw new AppError("todos los campos son requeridos", 400);
+      }
+      const usuario = await updateUsuario(id, nombre_usuario, contrasena, rol);
 
-    if (usuario == 0) {
-      throw new AppError("usuario no encontrado", 404);
+      if (usuario == 0) {
+        throw new AppError("usuario no encontrado", 404);
+      }
+      res.status(200).json({ message: "usuario editado exsitosamente" });
+    } catch (error) {
+      next(error);
     }
-    res.status(200).json({ message: "usuario editado exsitosamente" });
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 /**
  * @swagger
@@ -223,23 +240,27 @@ router.put("/usuarios/update/:id", async (req, res, next) => {
  *       500:
  *         description: Error del servidor
  */
-router.delete("/usuarios/delete/:id", async (req, res, next) => {
-  try {
-    const { id } = req.params;
+router.delete(
+  "/usuarios/delete/:id",
+  authenticate(["administrador"]),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
 
-    if (!id) {
-      throw new AppError("el id es requerido", 400);
+      if (!id) {
+        throw new AppError("el id es requerido", 400);
+      }
+
+      const usuario = await deleteUsuario(id);
+
+      if (usuario == 0) {
+        throw new AppError("usuario no encontrado", 404);
+      }
+      res.status(200).json({ message: "usuario eliminado exsitosamente" });
+    } catch (error) {
+      next(error);
     }
-
-    const usuario = await deleteUsuario(id);
-
-    if (usuario == 0) {
-      throw new AppError("usuario no encontrado", 404);
-    }
-    res.status(200).json({ message: "usuario eliminado exsitosamente" });
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 module.exports = router;

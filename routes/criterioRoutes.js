@@ -10,6 +10,7 @@ const {
   updateCriterios,
 } = require("../controller/criteriosController");
 const AppError = require("../errors/AppErrors");
+const authenticate = require("../middlewares/authenticate");
 
 /**
  * @swagger
@@ -38,22 +39,27 @@ const AppError = require("../errors/AppErrors");
  *       500:
  *         description: Error del servidor
  */
-router.get("/criterios/:id", async (req, res, next) => {
-  const { id } = req.params;
-  if (!id) {
-    throw new AppError("el id es requerido", 400);
-  }
-  try {
-    const criterio = await getCriterioById(id);
 
-    if (!criterio) {
-      throw new AppError("criterio no encontrado", 404);
+router.get(
+  "/criterios/:id",
+  authenticate(["administrador", "gestor"]),
+  async (req, res, next) => {
+    const { id } = req.params;
+    if (!id) {
+      throw new AppError("el id es requerido", 400);
     }
-    res.status(200).json(criterio);
-  } catch (error) {
-    next(error);
+    try {
+      const criterio = await getCriterioById(id);
+
+      if (!criterio) {
+        throw new AppError("criterio no encontrado", 404);
+      }
+      res.status(200).json(criterio);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 /**
  * @swagger
@@ -75,14 +81,18 @@ router.get("/criterios/:id", async (req, res, next) => {
  *       500:
  *         description: Error del servidor
  */
-router.get("/criterios", async (req, res, next) => {
-  try {
-    const criterios = await getCriterios();
-    res.status(200).json(criterios);
-  } catch (error) {
-    next(error);
+router.get(
+  "/criterios",
+  authenticate(["administrador", "gestor"]),
+  async (req, res, next) => {
+    try {
+      const criterios = await getCriterios();
+      res.status(200).json(criterios);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 /**
  * @swagger
@@ -115,19 +125,23 @@ router.get("/criterios", async (req, res, next) => {
  *       500:
  *         description: Error del servidor
  */
-router.post("/criterios/create", async (req, res, next) => {
-  try {
-    const { nombre, encuestaId } = req.body;
+router.post(
+  "/criterios/create",
+  authenticate(["administrador", "gestor"]),
+  async (req, res, next) => {
+    try {
+      const { nombre, encuestaId } = req.body;
 
-    if (!nombre || !encuestaId) {
-      throw new AppError("el id es requerido", 400);
+      if (!nombre || !encuestaId) {
+        throw new AppError("el id es requerido", 400);
+      }
+      const criterio = await createCriterio(nombre, encuestaId);
+      res.status(200).json(criterio);
+    } catch (error) {
+      next(error);
     }
-    const criterio = await createCriterio(nombre, encuestaId);
-    res.status(200).json(criterio);
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 /**
  * @swagger
@@ -166,27 +180,31 @@ router.post("/criterios/create", async (req, res, next) => {
  *       500:
  *         description: Error del servidor
  */
-router.put("/criterios/update/:id", async (req, res, next) => {
-  try {
-    const { nombre, encuestaId } = req.body;
-    const { id } = req.params;
+router.put(
+  "/criterios/update/:id",
+  authenticate(["administrador", "gestor"]),
+  async (req, res, next) => {
+    try {
+      const { nombre, encuestaId } = req.body;
+      const { id } = req.params;
 
-    if (!id) {
-      throw new AppError("el id es requerido", 400);
-    }
-    if (!nombre) {
-      throw new AppError("todos los campos son requeridos", 400);
-    }
-    const criterio = await updateCriterios(id, nombre, encuestaId);
+      if (!id) {
+        throw new AppError("el id es requerido", 400);
+      }
+      if (!nombre) {
+        throw new AppError("todos los campos son requeridos", 400);
+      }
+      const criterio = await updateCriterios(id, nombre, encuestaId);
 
-    if (criterio == 0) {
-      throw new AppError("usuario no encontrado", 404);
+      if (criterio == 0) {
+        throw new AppError("usuario no encontrado", 404);
+      }
+      res.status(200).json({ message: "criterio editado exsitosamente" });
+    } catch (error) {
+      next(error);
     }
-    res.status(200).json({ message: "criterio editado exsitosamente" });
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 /**
  * @swagger
@@ -213,23 +231,27 @@ router.put("/criterios/update/:id", async (req, res, next) => {
  *       500:
  *         description: Error del servidor
  */
-router.delete("/criterios/delete/:id", async (req, res, next) => {
-  try {
-    const { id } = req.params;
+router.delete(
+  "/criterios/delete/:id",
+  authenticate(["administrador", "gestor"]),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
 
-    if (!id) {
-      throw new AppError("el id es requerido", 400);
+      if (!id) {
+        throw new AppError("el id es requerido", 400);
+      }
+
+      const criterio = await deleteCriterio(id);
+
+      if (criterio == 0) {
+        throw new AppError("criterio no encontrado", 404);
+      }
+      res.status(200).json({ message: "criterio eliminado exsitosamente" });
+    } catch (error) {
+      next(error);
     }
-
-    const criterio = await deleteCriterio(id);
-
-    if (criterio == 0) {
-      throw new AppError("criterio no encontrado", 404);
-    }
-    res.status(200).json({ message: "criterio eliminado exsitosamente" });
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 module.exports = router;

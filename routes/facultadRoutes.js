@@ -9,6 +9,7 @@ const {
   updateFacultad,
 } = require("../controller/facultadController");
 const AppError = require("../errors/AppErrors");
+const authenticate = require("../middlewares/authenticate");
 
 /**
  * @swagger
@@ -37,22 +38,26 @@ const AppError = require("../errors/AppErrors");
  *       500:
  *         description: Error del servidor
  */
-router.get("/facultad/:id", async (req, res, next) => {
-  const { id } = req.params;
-  if (!id) {
-    throw new AppError("el id es requerido", 400);
-  }
-  try {
-    const facultad = await getFacultadById(id);
-
-    if (!facultad) {
-      throw new AppError("facultad no encontrada", 404);
+router.get(
+  "/facultad/:id",
+  authenticate(["administrador", "gestor"]),
+  async (req, res, next) => {
+    const { id } = req.params;
+    if (!id) {
+      throw new AppError("el id es requerido", 400);
     }
-    res.status(200).json(facultad);
-  } catch (error) {
-    next(error);
+    try {
+      const facultad = await getFacultadById(id);
+
+      if (!facultad) {
+        throw new AppError("facultad no encontrada", 404);
+      }
+      res.status(200).json(facultad);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 /**
  * @swagger
@@ -74,14 +79,18 @@ router.get("/facultad/:id", async (req, res, next) => {
  *       500:
  *         description: Error del servidor
  */
-router.get("/facultad", async (req, res, next) => {
-  try {
-    const facultades = await getFacultades();
-    res.status(200).json(facultades);
-  } catch (error) {
-    next(error);
+router.get(
+  "/facultad",
+  authenticate(["administrador", "gestor"]),
+  async (req, res, next) => {
+    try {
+      const facultades = await getFacultades();
+      res.status(200).json(facultades);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 /**
  * @swagger
@@ -115,19 +124,23 @@ router.get("/facultad", async (req, res, next) => {
  *       500:
  *         description: Error del servidor
  */
-router.post("/facultad/create", async (req, res, next) => {
-  try {
-    const { nombre, responsable } = req.body;
+router.post(
+  "/facultad/create",
+  authenticate(["administrador", "gestor"]),
+  async (req, res, next) => {
+    try {
+      const { nombre, responsable } = req.body;
 
-    if (!nombre || !responsable) {
-      throw new AppError("el nombre y responsable son requeridos", 400);
+      if (!nombre || !responsable) {
+        throw new AppError("el nombre y responsable son requeridos", 400);
+      }
+      const facultad = await createFacultad(nombre, responsable);
+      res.status(200).json(facultad);
+    } catch (error) {
+      next(error);
     }
-    const facultad = await createFacultad(nombre, responsable);
-    res.status(200).json(facultad);
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 /**
  * @swagger
@@ -170,29 +183,33 @@ router.post("/facultad/create", async (req, res, next) => {
  *       500:
  *         description: Error del servidor
  */
-router.put("/facultad/update/:id", async (req, res, next) => {
-  try {
-    const { nombre, responsable } = req.body;
-    const { id } = req.params;
+router.put(
+  "/facultad/update/:id",
+  authenticate(["administrador", "gestor"]),
+  async (req, res, next) => {
+    try {
+      const { nombre, responsable } = req.body;
+      const { id } = req.params;
 
-    console.log(req.body);
+      console.log(req.body);
 
-    if (!id) {
-      throw new AppError("el id es requerido", 400);
-    }
-    if (!nombre || !responsable) {
-      throw new AppError("todos los campos son requeridos", 400);
-    }
-    const facultad = await updateFacultad(id, nombre, responsable);
+      if (!id) {
+        throw new AppError("el id es requerido", 400);
+      }
+      if (!nombre || !responsable) {
+        throw new AppError("todos los campos son requeridos", 400);
+      }
+      const facultad = await updateFacultad(id, nombre, responsable);
 
-    if (facultad == 0) {
-      throw new AppError("facultad no encontrada", 404);
+      if (facultad == 0) {
+        throw new AppError("facultad no encontrada", 404);
+      }
+      res.status(200).json({ message: "facultad editada exsitosamente" });
+    } catch (error) {
+      next(error);
     }
-    res.status(200).json({ message: "facultad editada exsitosamente" });
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 /**
  * @swagger
@@ -214,23 +231,27 @@ router.put("/facultad/update/:id", async (req, res, next) => {
  *       404:
  *         description: Facultad no encontrada
  */
-router.delete("/facultad/delete/:id", async (req, res, next) => {
-  try {
-    const { id } = req.params;
+router.delete(
+  "/facultad/delete/:id",
+  authenticate(["administrador", "gestor"]),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
 
-    if (!id) {
-      throw new AppError("el id es requerido", 400);
+      if (!id) {
+        throw new AppError("el id es requerido", 400);
+      }
+
+      const facultad = await deleteFacultad(id);
+
+      if (facultad == 0) {
+        throw new AppError("facultad no encontrada", 404);
+      }
+      res.status(200).json({ message: "facultad eliminada exsitosamente" });
+    } catch (error) {
+      console.log(error);
+      next(error);
     }
-
-    const facultad = await deleteFacultad(id);
-
-    if (facultad == 0) {
-      throw new AppError("facultad no encontrada", 404);
-    }
-    res.status(200).json({ message: "facultad eliminada exsitosamente" });
-  } catch (error) {
-    console.log(error);
-    next(error);
   }
-});
+);
 module.exports = router;

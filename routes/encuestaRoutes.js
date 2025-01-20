@@ -9,6 +9,7 @@ const {
   updateEncuesta,
 } = require("../controller/encuestaController");
 const AppError = require("../errors/AppErrors");
+const authenticate = require("../middlewares/authenticate");
 
 /**
  * @swagger
@@ -37,22 +38,26 @@ const AppError = require("../errors/AppErrors");
  *       500:
  *         description: Error del servidor
  */
-router.get("/encuesta/:id", async (req, res, next) => {
-  const { id } = req.params;
-  if (!id) {
-    throw new AppError("el id es requerido", 400);
-  }
-  try {
-    const encuesta = await getEncuestaById(id);
-
-    if (!encuesta) {
-      throw new AppError("encuesta no encontrada", 404);
+router.get(
+  "/encuesta/:id",
+  authenticate(["administrador", "gestor"]),
+  async (req, res, next) => {
+    const { id } = req.params;
+    if (!id) {
+      throw new AppError("el id es requerido", 400);
     }
-    res.status(200).json(encuesta);
-  } catch (error) {
-    next(error);
+    try {
+      const encuesta = await getEncuestaById(id);
+
+      if (!encuesta) {
+        throw new AppError("encuesta no encontrada", 404);
+      }
+      res.status(200).json(encuesta);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 /**
  * @swagger
@@ -74,14 +79,18 @@ router.get("/encuesta/:id", async (req, res, next) => {
  *       500:
  *         description: Error del servidor
  */
-router.get("/encuesta", async (req, res, next) => {
-  try {
-    const encuesta = await getEncuestas();
-    res.status(200).json(encuesta);
-  } catch (error) {
-    next(error);
+router.get(
+  "/encuesta",
+  authenticate(["administrador", "gestor"]),
+  async (req, res, next) => {
+    try {
+      const encuesta = await getEncuestas();
+      res.status(200).json(encuesta);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 /**
  * @swagger
@@ -124,18 +133,22 @@ router.get("/encuesta", async (req, res, next) => {
  *       500:
  *         description: Error del servidor
  */
-router.post("/encuesta/create", async (req, res, next) => {
-  try {
-    const { nombre, profesores, usuarioId } = req.body;
-    if (!nombre || !usuarioId) {
-      throw new AppError("Todos los campos son requeridos", 400);
+router.post(
+  "/encuesta/create",
+  authenticate(["administrador", "gestor"]),
+  async (req, res, next) => {
+    try {
+      const { nombre, profesores, usuarioId } = req.body;
+      if (!nombre || !usuarioId) {
+        throw new AppError("Todos los campos son requeridos", 400);
+      }
+      const encuesta = await createEncuesta(nombre, usuarioId, profesores);
+      res.status(200).json(encuesta);
+    } catch (error) {
+      next(error);
     }
-    const encuesta = await createEncuesta(nombre, usuarioId, profesores);
-    res.status(200).json(encuesta);
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 /**
  * @swagger
@@ -182,27 +195,31 @@ router.post("/encuesta/create", async (req, res, next) => {
  *       500:
  *         description: Error del servidor
  */
-router.put("/encuesta/update/:id", async (req, res, next) => {
-  try {
-    const { nombre, profesores } = req.body;
-    const { id } = req.params;
+router.put(
+  "/encuesta/update/:id",
+  authenticate(["administrador", "gestor"]),
+  async (req, res, next) => {
+    try {
+      const { nombre, profesores } = req.body;
+      const { id } = req.params;
 
-    if (!id) {
-      throw new AppError("el id es requerido", 400);
-    }
-    if (!nombre) {
-      throw new AppError("todos los campos son requeridos", 400);
-    }
-    const encuesta = await updateEncuesta(id, nombre, profesores);
+      if (!id) {
+        throw new AppError("el id es requerido", 400);
+      }
+      if (!nombre) {
+        throw new AppError("todos los campos son requeridos", 400);
+      }
+      const encuesta = await updateEncuesta(id, nombre, profesores);
 
-    if (encuesta == 0) {
-      throw new AppError("encuesta no encontrada", 404);
+      if (encuesta == 0) {
+        throw new AppError("encuesta no encontrada", 404);
+      }
+      res.status(200).json({ message: "encuesta editada exitosamente" });
+    } catch (error) {
+      next(error);
     }
-    res.status(200).json({ message: "encuesta editada exitosamente" });
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 /**
  * @swagger
@@ -227,23 +244,27 @@ router.put("/encuesta/update/:id", async (req, res, next) => {
  *       500:
  *         description: Error del servidor
  */
-router.delete("/encuesta/delete/:id", async (req, res, next) => {
-  try {
-    const { id } = req.params;
+router.delete(
+  "/encuesta/delete/:id",
+  authenticate(["administrador", "gestor"]),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
 
-    if (!id) {
-      throw new AppError("el id es requerido", 400);
+      if (!id) {
+        throw new AppError("el id es requerido", 400);
+      }
+
+      const encuesta = await deleteEncuesta(id);
+
+      if (encuesta == 0) {
+        throw new AppError("encuesta no encontrada", 404);
+      }
+      res.status(200).json({ message: "encuesta eliminada exsitosamente" });
+    } catch (error) {
+      next(error);
     }
-
-    const encuesta = await deleteEncuesta(id);
-
-    if (encuesta == 0) {
-      throw new AppError("encuesta no encontrada", 404);
-    }
-    res.status(200).json({ message: "encuesta eliminada exsitosamente" });
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 module.exports = router;

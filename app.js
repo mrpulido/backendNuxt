@@ -21,6 +21,7 @@ const encuestaRoutes = require("./routes/encuestaRoutes.js");
 const facultadRoutes = require("./routes/facultadRoutes.js");
 const profesorRoutes = require("./routes/profesorRoutes.js");
 const criterioRoutes = require("./routes/criterioRoutes.js");
+const authRoutes = require("./routes/authRoutes.js");
 
 const errorHandler = require("./middlewares/errorHandler.js");
 const requestLogger = require("./middlewares/requestLogger.js");
@@ -39,6 +40,20 @@ const opcions = {
         url: "",
       },
     },
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
+    security: [
+      {
+        bearerAuth: [],
+      },
+    ],
   },
   apis: ["./routes/*.js", "./models/*.js"],
 };
@@ -70,6 +85,7 @@ app.use("/", criterioRoutes);
 app.use("/", profesorRoutes);
 app.use("/", facultadRoutes);
 app.use("/", encuestaRoutes);
+app.use("/", authRoutes);
 
 //Middleware de manejo de errores
 app.use(errorHandler);
@@ -94,3 +110,5 @@ sequelize
 
 // Servir archivos estáticos desde la carpeta 'uploads'
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+module.exports = app;

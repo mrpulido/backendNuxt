@@ -10,6 +10,7 @@ const {
 } = require("../controller/profesorController");
 const AppError = require("../errors/AppErrors");
 const upload = require("../middlewares/multerconfig");
+const authenticate = require("../middlewares/authenticate");
 
 /**
  * @swagger
@@ -38,22 +39,26 @@ const upload = require("../middlewares/multerconfig");
  *       500:
  *         description: Error del servidor.
  */
-router.get("/profesor/:id", async (req, res, next) => {
-  const { id } = req.params;
-  if (!id) {
-    throw new AppError("el id es requerido", 400);
-  }
-  try {
-    const profesor = await getProfesorById(id);
-
-    if (!profesor) {
-      throw new AppError("profesor no encontrado", 404);
+router.get(
+  "/profesor/:id",
+  authenticate(["administrador", "gestor"]),
+  async (req, res, next) => {
+    const { id } = req.params;
+    if (!id) {
+      throw new AppError("el id es requerido", 400);
     }
-    res.status(200).json(profesor);
-  } catch (error) {
-    next(error);
+    try {
+      const profesor = await getProfesorById(id);
+
+      if (!profesor) {
+        throw new AppError("profesor no encontrado", 404);
+      }
+      res.status(200).json(profesor);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 /**
  * @swagger
@@ -75,14 +80,18 @@ router.get("/profesor/:id", async (req, res, next) => {
  *       500:
  *         description: Error del servidor
  */
-router.get("/profesor", async (req, res, next) => {
-  try {
-    const profesores = await getProfesor();
-    res.status(200).json(profesores);
-  } catch (error) {
-    next(error);
+router.get(
+  "/profesor",
+  authenticate(["administrador", "gestor"]),
+  async (req, res, next) => {
+    try {
+      const profesores = await getProfesor();
+      res.status(200).json(profesores);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 /**
  * @swagger
@@ -113,6 +122,7 @@ router.get("/profesor", async (req, res, next) => {
 router.post(
   "/profesor/create",
   upload.single("imagen"),
+  authenticate(["administrador", "gestor"]),
   async (req, res, next) => {
     try {
       const { nombre, sexo, edad, asignatura, facultadId } = req.body;
@@ -170,6 +180,7 @@ router.post(
 router.put(
   "/profesor/update/:id",
   upload.single("imagen"),
+  authenticate(["administrador", "gestor"]),
   async (req, res, next) => {
     try {
       const { nombre, sexo, edad, asignatura, facultadId } = req.body;
@@ -225,24 +236,28 @@ router.put(
  *       500:
  *         description: Error del servidor
  */
-router.delete("/profesor/delete/:id", async (req, res, next) => {
-  try {
-    const { id } = req.params;
+router.delete(
+  "/profesor/delete/:id",
+  authenticate(["administrador", "gestor"]),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
 
-    if (!id) {
-      throw new AppError("el id es requerido", 400);
+      if (!id) {
+        throw new AppError("el id es requerido", 400);
+      }
+
+      const profesor = await deleteProfesor(id);
+
+      if (profesor == 0) {
+        throw new AppError("profesor no encontrado", 404);
+      }
+      res.status(200).json({ message: "profesor eliminado exsitosamente" });
+    } catch (error) {
+      next(error);
     }
-
-    const profesor = await deleteProfesor(id);
-
-    if (profesor == 0) {
-      throw new AppError("profesor no encontrado", 404);
-    }
-    res.status(200).json({ message: "profesor eliminado exsitosamente" });
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 /**
  * @swagger
