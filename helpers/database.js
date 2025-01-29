@@ -1,30 +1,32 @@
 // importancion de los módulos necesarios
 const Sequelize = require("sequelize");
+const logger = require("../loggers/logger");
 const dotenv = require("dotenv").config();
 
-// importamos las variables de entorno para la conexión a la base de datos
-const DB_NAME = process.env.DB_NAME;
-const password = process.env.DB_PASSWORD;
-const user = process.env.DB_USER;
-const dialect = process.env.DB_DIALECT;
-const port = process.env.DB_PORT;
-const host = process.env.HOST;
+const config = require("../config/config");
+const environment = process.env.NODE_ENV || "development";
+const configEnv = config[environment];
 
-// conexión a la base de datos
-const sequelize = new Sequelize(DB_NAME, user, password, {
-  host: host,
-  port: port,
-  dialect: dialect,
-  logging: false,
-});
+// Set up the database connection
+const sequelize = new Sequelize(
+  configEnv.database,
+  configEnv.username,
+  configEnv.password,
+  {
+    host: configEnv.host,
+    port: configEnv.port,
+    dialect: configEnv.dialect,
+    logging: false,
+  }
+);
 
 // función para comprobar que salió bien la conexión con la base de datos
 sequelize
   .authenticate()
   .then(() => {
-    console.log("Conexión establecida correctamente.");
+    logger.info("Conexión establecida correctamente.");
   })
   .catch((err) => {
-    console.log("Error al conectarse a la base de datos:");
+    logger.error("Error al conectarse a la base de datos:");
   });
 module.exports = sequelize;
