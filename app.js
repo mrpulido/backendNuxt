@@ -68,6 +68,7 @@ app.use(express.urlencoded({ extended: true }));
 //configuracion cors
 const allowedOrigins = [
   "https://frontendnuxt.onrender.com/, http://localhost:3000",
+  "*",
 ];
 app.use(
   cors({
