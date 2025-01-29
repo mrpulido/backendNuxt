@@ -1,6 +1,6 @@
 // importancion de los módulos necesarios
 const Sequelize = require("sequelize");
-const logger = require("../loggers/logger");
+const logger = require("../logger/logger");
 const dotenv = require("dotenv").config();
 
 const config = require("../config/config");
