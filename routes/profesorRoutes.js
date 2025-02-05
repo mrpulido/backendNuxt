@@ -9,7 +9,11 @@ const {
   updateProfesor,
 } = require("../controller/profesorController");
 const AppError = require("../errors/AppErrors");
-const upload = require("../middlewares/multerconfig");
+const {
+  upload,
+  handleFileUpload,
+  handleDeleteFile,
+} = require("../middlewares/multerconfig");
 const authenticate = require("../middlewares/authenticate");
 
 /**
@@ -126,7 +130,7 @@ router.post(
   async (req, res, next) => {
     try {
       const { nombre, sexo, edad, asignatura, facultadId } = req.body;
-      const imagen = req.file ? req.file.filename : null;
+      const imagen = req.file ? await handleFileUpload(req.file, nombre) : null;
 
       if (!nombre || !sexo || !edad || !asignatura) {
         throw new AppError("todos los campos son requeridos", 400);
@@ -141,6 +145,7 @@ router.post(
       );
       res.status(200).json(profesor);
     } catch (error) {
+      console.log(error);
       next(error);
     }
   }
@@ -185,7 +190,7 @@ router.put(
     try {
       const { nombre, sexo, edad, asignatura, facultadId } = req.body;
       const { id } = req.params;
-      const imagen = req.file ? req.file.filename : null;
+      const imagen = req.file ? await handleFileUpload(req.file, nombre) : null;
 
       if (!nombre || !sexo || !edad || !asignatura || !facultadId) {
         throw new AppError("todos los campos son requeridos", 400);
@@ -243,16 +248,24 @@ router.delete(
     try {
       const { id } = req.params;
 
-      if (!id) {
-        throw new AppError("el id es requerido", 400);
-      }
-
-      const profesor = await deleteProfesor(id);
-
-      if (profesor == 0) {
+      // Obtener el profesor para acceder a la imagen
+      const profesor = await getProfesorById(id);
+      if (!profesor) {
         throw new AppError("profesor no encontrado", 404);
       }
-      res.status(200).json({ message: "profesor eliminado exsitosamente" });
+
+      // Eliminar la imagen asociada si existe
+      if (profesor.imagen) {
+        await handleDeleteFile(profesor.imagen);
+      }
+
+      // Eliminar el profesor
+      const result = await deleteProfesor(id);
+      if (result === 0) {
+        throw new AppError("profesor no encontrado", 404);
+      }
+
+      res.status(200).json({ message: "profesor eliminado exitosamente" });
     } catch (error) {
       next(error);
     }

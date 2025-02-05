@@ -10,7 +10,7 @@ const createProfesor = async (
   facultadId,
   imagen
 ) => {
-  const imagenPath = imagen ? path.join("uploads", imagen) : null;
+  const imagenPath = imagen ? imagen : null;
 
   const profesor = await Profesor.create({
     nombre,
@@ -53,7 +53,7 @@ const updateProfesor = async (
   };
 
   if (imagen) {
-    updateData.imagen = path.join("uploads", imagen);
+    updateData.imagen = imagen;
   }
 
   const [updated] = await Profesor.update(updateData, { where: { id } });
