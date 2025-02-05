@@ -56,6 +56,7 @@ const Usuario = sequelize.define(
     nombre_usuario: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true,
     },
     contrasena: {
       type: DataTypes.STRING,

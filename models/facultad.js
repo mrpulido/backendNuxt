@@ -37,18 +37,22 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../helpers/database");
 
-const Facultad = sequelize.define("facultad", {
-  nombre: {
-    type: DataTypes.STRING,
-    allowNull: false,
+const Facultad = sequelize.define(
+  "facultad",
+  {
+    nombre: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    responsable: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
   },
-  responsable: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-
-}, {
-  timestamps: true,
-  paranoid: true,
-});
-module.exports = Facultad;  
+  {
+    timestamps: true,
+    paranoid: true,
+  }
+);
+module.exports = Facultad;

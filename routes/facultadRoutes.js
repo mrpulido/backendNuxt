@@ -137,6 +137,9 @@ router.post(
       const facultad = await createFacultad(nombre, responsable);
       res.status(200).json(facultad);
     } catch (error) {
+      if (error?.parent?.detail.includes("nombre")) {
+        return next(new AppError("La facultad ya existe", 400));
+      }
       next(error);
     }
   }

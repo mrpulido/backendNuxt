@@ -146,6 +146,9 @@ router.post(
       const usuario = await createUsuario(nombre_usuario, contrasena, rol);
       res.status(200).json(usuario);
     } catch (error) {
+      if (error?.parent?.detail.includes("nombre_usuario")) {
+        return next(new AppError("El usuario ya existe", 400));
+      }
       next(error);
     }
   }
