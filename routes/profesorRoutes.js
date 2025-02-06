@@ -145,9 +145,6 @@ router.post(
       );
       res.status(200).json(profesor);
     } catch (error) {
-      if (error?.parent?.detail.includes("nombre")) {
-        return next(new AppError("El profesor ya existe", 400));
-      }
       next(error);
     }
   }

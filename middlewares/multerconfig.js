@@ -11,6 +11,7 @@ if (!fs.existsSync(uploadDir)) {
 
 // Configuración de Supabase
 const { createClient } = require("@supabase/supabase-js");
+const AppError = require("../errors/AppErrors");
 require("dotenv").config();
 
 const supabase = createClient(
