@@ -209,6 +209,9 @@ router.put(
       }
       res.status(200).json({ message: "facultad editada exsitosamente" });
     } catch (error) {
+      if (error?.parent?.detail.includes("nombre")) {
+        return next(new AppError("La facultad ya existe", 400));
+      }
       next(error);
     }
   }

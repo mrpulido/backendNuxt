@@ -145,6 +145,9 @@ router.post(
       const encuesta = await createEncuesta(nombre, usuarioId, profesores);
       res.status(200).json(encuesta);
     } catch (error) {
+      if (error?.parent?.detail.includes("nombre")) {
+        return next(new AppError("La encuesta ya existe", 400));
+      }
       next(error);
     }
   }
@@ -216,6 +219,9 @@ router.put(
       }
       res.status(200).json({ message: "encuesta editada exitosamente" });
     } catch (error) {
+      if (error?.parent?.detail.includes("nombre")) {
+        return next(new AppError("La encuesta ya existe", 400));
+      }
       next(error);
     }
   }

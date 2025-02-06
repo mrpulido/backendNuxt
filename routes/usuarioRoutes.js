@@ -215,6 +215,9 @@ router.put(
       }
       res.status(200).json({ message: "usuario editado exsitosamente" });
     } catch (error) {
+      if (error?.parent?.detail.includes("nombre_usuario")) {
+        return next(new AppError("El usuario ya existe", 400));
+      }
       next(error);
     }
   }

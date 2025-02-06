@@ -138,6 +138,9 @@ router.post(
       const criterio = await createCriterio(nombre, encuestaId);
       res.status(200).json(criterio);
     } catch (error) {
+      if (error.name === "SequelizeUniqueConstraintError") {
+        return next(new AppError("El criterio ya existe", 400));
+      }
       next(error);
     }
   }

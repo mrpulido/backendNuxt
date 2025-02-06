@@ -41,6 +41,7 @@ const Criterio = sequelize.define(
     nombre: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true,
     },
     encuestaId: {
       type: DataTypes.INTEGER,

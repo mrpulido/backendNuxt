@@ -62,6 +62,7 @@ const Profesor = sequelize.define(
     nombre: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true,
     },
     sexo: {
       type: DataTypes.STRING,
